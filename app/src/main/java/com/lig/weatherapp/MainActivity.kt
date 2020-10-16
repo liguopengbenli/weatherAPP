@@ -10,12 +10,14 @@ import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.google.android.gms.location.*
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -24,6 +26,7 @@ import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.lig.weatherapp.models.WeatherResponse
 import com.lig.weatherapp.netwrok.WeatherService
+import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -99,6 +102,7 @@ class MainActivity : AppCompatActivity() {
                         hideProgressDialog()
                         val weatherList: WeatherResponse? = response.body()
                         Log.i("response result:", "$weatherList")
+                        setupUI(weatherList!!)
                     }else{
                         val rc = response.code()
                         when(rc){
@@ -170,6 +174,25 @@ class MainActivity : AppCompatActivity() {
         if(mProgressDialog != null){
             mProgressDialog!!.dismiss()
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun setupUI(weatherList: WeatherResponse){
+        for (i in weatherList.weather.indices){
+            Log.i("Weather Name", weatherList.weather.toString())
+
+            tv_main.text = weatherList.weather[i].main
+            tv_main_description.text = weatherList.weather[i].description
+            tv_temp.text = weatherList.main.temp.toString() + getUnit(application.resources.configuration.locales.toString()) // to know the current location unit
+        }
+    }
+
+    private fun getUnit(value:String):String?{
+        var value = "°C"
+        if("US" == value || "LR" == value || "MM" == value){
+            value = "°F"
+        }
+        return value
     }
 
 }

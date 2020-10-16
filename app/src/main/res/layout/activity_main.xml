@@ -285,7 +285,6 @@
                         android:textSize="@dimen/value_text_size"
                         tools:text="Country" />
                 </LinearLayout>
-
             </LinearLayout>
 
             <View
