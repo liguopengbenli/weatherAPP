@@ -29,6 +29,8 @@ import com.lig.weatherapp.netwrok.WeatherService
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -102,7 +104,9 @@ class MainActivity : AppCompatActivity() {
                         hideProgressDialog()
                         val weatherList: WeatherResponse? = response.body()
                         Log.i("response result:", "$weatherList")
-                        setupUI(weatherList!!)
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                            setupUI(weatherList!!)
+                        }
                     }else{
                         val rc = response.code()
                         when(rc){
@@ -184,6 +188,15 @@ class MainActivity : AppCompatActivity() {
             tv_main.text = weatherList.weather[i].main
             tv_main_description.text = weatherList.weather[i].description
             tv_temp.text = weatherList.main.temp.toString() + getUnit(application.resources.configuration.locales.toString()) // to know the current location unit
+
+            tv_sunrise_time.text = unixTime(weatherList.sys.sunrise)
+            tv_sunset_time.text = unixTime(weatherList.sys.sunset)
+            tv_humidity.text = weatherList.main.humidity.toString()
+            tv_min.text = weatherList.main.temp_min.toString() + " min"
+            tv_max.text = weatherList.main.temp_max.toString() + " max"
+            tv_country.text = weatherList.sys.country
+            tv_speed.text = weatherList.wind.speed.toString()
+            tv_name.text = weatherList.name
         }
     }
 
@@ -193,6 +206,13 @@ class MainActivity : AppCompatActivity() {
             value = "°F"
         }
         return value
+    }
+
+    private fun unixTime(timex: Long): String?{
+        val date =  Date(timex * 1000L) //ms
+        val sdf = SimpleDateFormat("HH:mm", Locale.UK)
+        sdf.timeZone = TimeZone.getDefault()
+        return sdf.format(date)
     }
 
 }
