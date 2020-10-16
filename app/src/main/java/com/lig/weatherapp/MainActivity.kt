@@ -65,6 +65,17 @@ class MainActivity : AppCompatActivity() {
         return locationManaer.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManaer.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
+
+    private fun getLocationWeatherDetails(){
+        if (Constants.isNetwrokAvailable(this)){
+            Toast.makeText(this, "You have connected to the internet", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(this, "You don't have connected to the internet", Toast.LENGTH_SHORT).show()
+        }
+
+
+    }
+
     //custom method for go in settings permission for this app
     private fun showRationalDialogForPermission(){
         AlertDialog.Builder(this)
@@ -101,6 +112,7 @@ class MainActivity : AppCompatActivity() {
             val mLatitude = mLastLocation.latitude
             val mLongitude = mLastLocation.longitude
             Log.i("Current Longitude", "$mLongitude")
+            getLocationWeatherDetails()
         }
     }
 
