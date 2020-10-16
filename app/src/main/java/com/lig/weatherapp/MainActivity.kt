@@ -21,6 +21,10 @@ import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import com.lig.weatherapp.models.WeatherResponse
+import com.lig.weatherapp.netwrok.WeatherService
+import retrofit2.*
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -66,13 +70,47 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun getLocationWeatherDetails(){
+    private fun getLocationWeatherDetails(latitude: Double, longitude: Double){
         if (Constants.isNetwrokAvailable(this)){
             Toast.makeText(this, "You have connected to the internet", Toast.LENGTH_SHORT).show()
+            // declaration of retrofit
+            val retrofit: Retrofit = Retrofit.Builder()
+                                    .baseUrl(Constants.BASE_URL)
+                                    .addConverterFactory(GsonConverterFactory.create()) //use json format
+                                    .build()
+            // create a service of the retrofit interface
+            val service: WeatherService = retrofit.create(WeatherService::class.java)
+
+            // create a call with service of retrofit
+            val listCall: Call<WeatherResponse> = service.getWeather(
+                latitude, longitude, Constants.METRIC_UNIT, Constants.APP_ID
+            )
+            // make a call
+            listCall.enqueue(object : Callback<WeatherResponse>{
+                override fun onResponse(
+                    call: Call<WeatherResponse>,
+                    response: Response<WeatherResponse>
+                ) {
+                    if(response.isSuccessful){
+                        val weatherList: WeatherResponse? = response.body()
+                        Log.i("response result:", "$weatherList")
+                    }else{
+                        val rc = response.code()
+                        when(rc){
+                            400 -> Log.e("response result:", "Error 400 bad connection")
+                            404 -> Log.e("response result:", "Error 404 Not found")
+                            else -> Log.e("response result:", "Generic Error")
+                        }
+                    }
+                }
+                override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
+                    Log.e("response result:", "Error!! ${t.message.toString()}")
+                }
+            })
+
         }else{
             Toast.makeText(this, "You don't have connected to the internet", Toast.LENGTH_SHORT).show()
         }
-
 
     }
 
@@ -112,7 +150,7 @@ class MainActivity : AppCompatActivity() {
             val mLatitude = mLastLocation.latitude
             val mLongitude = mLastLocation.longitude
             Log.i("Current Longitude", "$mLongitude")
-            getLocationWeatherDetails()
+            getLocationWeatherDetails(mLatitude.toDouble(), mLongitude.toDouble())
         }
     }
 
