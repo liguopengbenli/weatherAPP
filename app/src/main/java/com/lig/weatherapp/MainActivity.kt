@@ -16,6 +16,8 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.google.android.gms.location.*
@@ -191,12 +193,29 @@ class MainActivity : AppCompatActivity() {
 
             tv_sunrise_time.text = unixTime(weatherList.sys.sunrise)
             tv_sunset_time.text = unixTime(weatherList.sys.sunset)
-            tv_humidity.text = weatherList.main.humidity.toString()
+            tv_humidity.text = weatherList.main.humidity.toString() + " per cent"
             tv_min.text = weatherList.main.temp_min.toString() + " min"
             tv_max.text = weatherList.main.temp_max.toString() + " max"
             tv_country.text = weatherList.sys.country
             tv_speed.text = weatherList.wind.speed.toString()
             tv_name.text = weatherList.name
+
+            when(weatherList.weather[i].icon){
+                "01d" -> iv_main.setImageResource(R.drawable.sunny)
+                "02d" -> iv_main.setImageResource(R.drawable.cloud)
+                "03d" -> iv_main.setImageResource(R.drawable.cloud)
+                "04d" -> iv_main.setImageResource(R.drawable.cloud)
+                "04n" -> iv_main.setImageResource(R.drawable.cloud)
+                "10d" -> iv_main.setImageResource(R.drawable.rain)
+                "11d" -> iv_main.setImageResource(R.drawable.storm)
+                "13d" -> iv_main.setImageResource(R.drawable.snowflake)
+                "01n" -> iv_main.setImageResource(R.drawable.cloud)
+                "02n" -> iv_main.setImageResource(R.drawable.cloud)
+                "03n" -> iv_main.setImageResource(R.drawable.cloud)
+                "10n" -> iv_main.setImageResource(R.drawable.cloud)
+                "11n" -> iv_main.setImageResource(R.drawable.rain)
+                "13n" -> iv_main.setImageResource(R.drawable.snowflake)
+            }
         }
     }
 
@@ -214,5 +233,23 @@ class MainActivity : AppCompatActivity() {
         sdf.timeZone = TimeZone.getDefault()
         return sdf.format(date)
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu) // too add layout to main layout
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId){
+            R.id.action_refresh ->{
+                requestNewLocationData()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+
+    }
+
+
 
 }
